@@ -1500,7 +1500,7 @@ ggsave(plot = figure1, filename= "./paper-figures/Figure1.png", dpi = "print")
 #| label: fig-exemptionsums-ResidentialEAV
 #| fig-cap: "**FIGURE 2 in Manuscript: Exempt EAV as a Share of Residential Assessed Value by Municipality.** Share of residential EAV that is tax exempt due to homestead exemptions. Denominator is a municipality's residential EAV."
 
-muni_mc_sums <- read_csv(paste0(filepath, "Output/ptaxsim_muni_MC_2006to2023.csv") |>
+muni_mc_sums <- read_csv(paste0(filepath, "Output/ptaxsim_muni_MC_2006to2023.csv") ) |>
   rename_all(~str_replace(., "muni_mc_", ""))
 
 median_exempt <- muni_mc_sums |>
