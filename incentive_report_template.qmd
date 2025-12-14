@@ -29,21 +29,22 @@ library(flextable)
 #install.packages("ggtext")
 library(ggtext)
 
-nicknames <- readxl::read_excel("../Necessary_Files/muni_shortnames.xlsx")
+filepath <- "../Merriman RA/ptax/"
+nicknames <- readxl::read_excel(paste0(filepath, "Necessary_Files/muni_shortnames.xlsx"))
 
-cook_sums <- read_csv("../Output/ptaxsim_cook_level_2006to2023.csv") 
+cook_sums <- read_csv(paste0(filepath, "Output/ptaxsim_cook_level_2006to2023.csv") )
 
-muni_sums <- read_csv("../Output/ptaxsim_muni_level_2006to2023.csv")
+muni_sums <- read_csv(paste0(filepath, "Output/ptaxsim_muni_level_2006to2023.csv") )
 
 
-muni_mc_sums <- read_csv("../Output/ptaxsim_muni_MC_2006to2023.csv") |>
+muni_mc_sums <- read_csv(paste0(filepath, "Output/ptaxsim_muni_MC_2006to2023.csv") ) |>
   rename_all(~str_replace(., "muni_mc_", ""))
 
 
-muni_cl_sums <- read_csv("../Output/ptaxsim_muni_class_summaries_2006to2023.csv") |>
+muni_cl_sums <- read_csv(paste0(filepath, "Output/ptaxsim_muni_class_summaries_2006to2023.csv") ) |>
   left_join(nicknames)
 
-muni_shp <- read_sf("../Necessary_Files/muni_shp.gpkg")
+muni_shp <- read_sf(paste0(filepath, "Necessary_Files/muni_shp.gpkg"))
 
 
 
@@ -65,10 +66,10 @@ FitFlextableToPage <- function(ft, pgwidth = 6){
   return(ft_out)
 }
 
-pin_data <- read_csv(paste0("../Output/Dont_Upload/0_joined_PIN_data_", params$year, ".csv"))
+pin_data <- read_csv(paste0(filepath, "Output/Dont_Upload/0_joined_PIN_data_", params$year, ".csv"))
 
 
-eq_factor <- read_csv("../Necessary_Files/eq_factor.csv") |>
+eq_factor <- read_csv(paste0(filepath, "Necessary_Files/eq_factor.csv")) |>
   filter(year == params$year) |>
   select(eq_factor = eq_factor_final) |>
   as.numeric()
@@ -120,7 +121,7 @@ Municipalities that are dropped due to having EAV outside of Cook County: Frankf
 
 # Cleaned PIN-Project list after cleaning the commercial valuation dataset found online. 
 # Another temporary work-around until we (maybe) have full keypin list:
-proj_xwalk <- readxl::read_xlsx("../Output/projects_checked_MAINFILE.xlsx") |>
+proj_xwalk <- readxl::read_xlsx(paste0(filepath, "Output/projects_checked_MAINFILE.xlsx")) |>
   rename(incent_prop2 = incent_prop)|>
   mutate(keypin = main_keypin)
 # all commercial valuation properties but made with not-quite-clean data from commercial valuation dataset on Cook County Data Portal (which was made from combining the Methodology worksheets) 
@@ -134,7 +135,7 @@ pin_data <- pin_data |> left_join(proj_xwalk)
 ```{r}
 # original class_dict variables already in 0_joined data
 # but I do want the new-ish variables (comparable properties, and land use type) I created in the file to be brought in:
-class_dict <- read_csv("../Necessary_Files/class_dict_expanded.csv") |>
+class_dict <- read_csv(paste0(filepath, "Necessary_Files/class_dict_expanded.csv") ) |>
   select(class_code, comparable_props, land_use=Alea_cat)
 
 
@@ -434,7 +435,7 @@ Untaxable EAV includes homeowner exemptions for 200 level properties, abatements
 ```{r}
 #| tbl-cap: "The Fair Market Value (FMV) is also called the Market Value for Assessment Purposes and can be calculated from the `av` / `loa`, or the Assessed Value divided by the Level of Assessment. However, the values used for the level of assessment are an approximation for incentive properties since we do not have the PIN level assessment ratios."
 
-cook_MC_sums <- read_csv("../Output/ptaxsim_cook_MC_level_2006to2023.csv") 
+cook_MC_sums <- read_csv(paste0(filepath, "Output/ptaxsim_cook_MC_level_2006to2023.csv") )
 
 cook_MC_sums |>  
   filter(year == params$year) |>
@@ -918,14 +919,14 @@ figure7C |>
 Read in CCAO level of assessment rates for each property class. Read in Summary file for Municipalities from 2006 to `r params$year`.
 
 ```{r}
-muni_rate <- read_csv("../Output/ptaxsim_muni_level_2006to2023.csv") |>
+muni_rate <- read_csv(paste0(filepath, "Output/ptaxsim_muni_level_2006to2023.csv") ) |>
   filter(year == params$year) |>
   left_join(nicknames) |> 
   select(clean_name, muni_current_rate_avg, muni_pct_eav_taxed) |>
   rename(cur_munilevel_rate = muni_current_rate_avg) |> 
   filter(!clean_name %in% cross_county_line)
 
-muni_ratechange <- read_csv(paste0("../Output/website_files/muni_ratechange_", params$year, ".csv")) |> 
+muni_ratechange <- read_csv(paste0(filepath, "Output/website_files/muni_ratechange_", params$year, ".csv")) |> 
   filter(!clean_name %in% cross_county_line)
 ```
 
@@ -1388,7 +1389,7 @@ ggsave(plot = figure5, filename= "./paper-figures/Figure5.png", dpi = "print")
 #| label: fig-dotplotburdenshift-withouttext
 
 
-mc_burden <- read_csv(paste0("../Output/website_files/muni_mc_burden_", params$year, ".csv"))
+mc_burden <- read_csv(paste0(filepath, "Output/website_files/muni_mc_burden_", params$year, ".csv"))
 
 order <- mc_burden |>
   filter(class_1dig == 2) |>
@@ -1499,7 +1500,7 @@ ggsave(plot = figure1, filename= "./paper-figures/Figure1.png", dpi = "print")
 #| label: fig-exemptionsums-ResidentialEAV
 #| fig-cap: "**FIGURE 2 in Manuscript: Exempt EAV as a Share of Residential Assessed Value by Municipality.** Share of residential EAV that is tax exempt due to homestead exemptions. Denominator is a municipality's residential EAV."
 
-muni_mc_sums <- read_csv("../Output/ptaxsim_muni_MC_2006to2023.csv") |>
+muni_mc_sums <- read_csv("./Merriman RA/ptax/Output/ptaxsim_muni_MC_2006to2023.csv") |>
   rename_all(~str_replace(., "muni_mc_", ""))
 
 median_exempt <- muni_mc_sums |>
@@ -1574,7 +1575,7 @@ ggsave(plot = figure2, filename= "./paper-figures/Figure2.png", dpi = "print")
 #| label: tbl-Report-Table2-allyears
 #| tbl-cap: "**Similar to Table 2 in Manuscript**  Incentive FMV by Year, 2006 to 2023"
 
-comm_ind_pins <- read_csv("../Output/comm_ind_PINs_2006to2023_timeseries.csv")
+comm_ind_pins <- read_csv(paste0(filepath, "Output/comm_ind_PINs_2006to2023_timeseries.csv"))
 
 
 commind_together_fmv <- comm_ind_pins %>%
